@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A practical talk on what agentic systems are, how they evolved, and how to design reliable production agents." />
+    <title>Building agentic systems</title>
+    <link rel="stylesheet" href="styles.css?v=agentic-talk-7" />
+    <script src="script.js?v=agentic-talk-6" defer></script>
+  </head>
+  <body>
+    <main class="deck" aria-label="Building agentic systems">
+      <div class="stage" aria-live="polite">
+        <section class="slide slide--cover is-active" data-title="Building agentic systems">
+          <div class="slide__content cover-layout">
+            <div class="cover-copy">
+              <p class="deck-series">A practical architecture talk</p>
+              <h1>Building agentic systems that can act without losing control</h1>
+              <p class="cover-subtitle">What agents are, how they evolved, and what production systems need</p>
+            </div>
+            <div class="cover-trace" aria-label="The talk structure">
+              <span class="trace-node trace-node--source">Capabilities</span>
+              <span class="trace-node trace-node--codex">Boundaries</span>
+              <span class="trace-node trace-node--review">Evidence</span>
+            </div>
+            <footer class="cover-footer">Akhilesh Keshap · Agentic systems</footer>
+          </div>
+        </section>
+
+        <section class="slide" data-title="The anatomy of an agentic system">
+          <div class="slide__content anatomy-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">02</p><h2>The anatomy of an agentic system</h2><p>The model is one component inside a larger execution system.</p></header>
+            <div class="anatomy-formula" aria-label="Components of an agentic system">
+              <section><strong>Goal</strong><span>The outcome to achieve</span></section><section><strong>Model</strong><span>Interprets and decides</span></section><section><strong>Context</strong><span>Instructions and evidence</span></section><section><strong>Tools</strong><span>Data and actions</span></section><section><strong>State</strong><span>Work completed so far</span></section><section><strong>Loop</strong><span>Continue, correct, or stop</span></section><section><strong>Controls</strong><span>Rules and approvals</span></section>
+            </div>
+            <div class="agent-loop"><span>Understand</span><span>Plan</span><span>Act</span><span>Observe</span><span>Continue or stop</span></div>
+            <p class="anatomy-note">A fixed workflow follows a path written in advance. An agentic workflow can choose the next step after observing the result.</p>
+          </div>
+        </section>
+
+        <section class="slide" data-title="An agentic system in action">
+          <div class="slide__content case-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">05</p><h2>An agentic system in action</h2><p>A missing delivery case shows how the system moves from a request to a controlled action.</p></header>
+            <blockquote class="case-request">“My order was supposed to arrive six days ago. Can you check what happened and help me resolve it?”</blockquote>
+            <ol class="case-flow" aria-label="Missing delivery investigation journey">
+              <li><span>1</span><strong>Understand the goal</strong><small>Resolve the delivery problem</small></li>
+              <li><span>2</span><strong>Find the order</strong><small>Retrieve order and shipment</small></li>
+              <li><span>3</span><strong>Inspect tracking</strong><small>No movement for six days</small></li>
+              <li><span>4</span><strong>Check incidents</strong><small>Carrier disruption found</small></li>
+              <li><span>5</span><strong>Apply policy</strong><small>Replacement allowed</small></li>
+              <li><span>6</span><strong>Recommend</strong><small>Offer a replacement</small></li>
+              <li><span>7</span><strong>Check authority</strong><small>Request approval if required</small></li>
+              <li><span>8</span><strong>Execute and explain</strong><small>Complete the action</small></li>
+            </ol>
+            <blockquote class="case-response">“Your shipment has not moved for six days, and the carrier has reported a disruption. This order is eligible for a replacement. I can arrange that now, subject to the required approval.”</blockquote>
+          </div>
+        </section>
+
+        <section class="slide" data-title="The delivery run uses every component">
+          <div class="slide__content component-map-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">06</p><h2>The delivery run uses every system component</h2><p>The final response depends on the work performed across the complete system.</p></header>
+            <div class="component-map">
+              <section><strong>Goal</strong><p>Resolve the delivery problem rather than answer a tracking question.</p></section>
+              <section><strong>Model</strong><p>Understands the intent and selects the delivery investigation capability.</p></section>
+              <section><strong>Context</strong><p>Provides the conversation, order history, and applicable delivery policy.</p></section>
+              <section><strong>Tools</strong><p>Access order, shipment, carrier, incident, and eligibility systems.</p></section>
+              <section><strong>State</strong><p>Records the order, six-day delay, incident check, and collected evidence.</p></section>
+              <section><strong>Execution loop</strong><p>Reviews each result and decides whether more evidence is needed.</p></section>
+              <section><strong>Controls</strong><p>Block unsupported refunds and require approval for consequential actions.</p></section>
+            </div>
+            <div class="component-transition"><p>The valuable work happens before the final sentence: evidence retrieval, policy application, state management, and authority checks.</p><strong>This is manageable with five distinct capabilities. What changes when the agent can see fifty overlapping tools?</strong></div>
+          </div>
+        </section>
+
+        <section class="slide" data-title="The autonomy spectrum">
+          <div class="slide__content spectrum-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">03</p><h2>Agentic systems exist on a spectrum</h2><p>A system can investigate independently while keeping consequential actions under human control.</p></header>
+            <div class="autonomy-ladder">
+              <section><span>1</span><h3>Assistant</h3><p>Finds information and answers questions.</p><small>Human interprets the answer</small></section>
+              <section><span>2</span><h3>Copilot</h3><p>Investigates the case and recommends an action.</p><small>Human makes the decision</small></section>
+              <section><span>3</span><h3>Approval agent</h3><p>Prepares an action and supporting evidence.</p><small>Human approves or rejects</small></section>
+              <section><span>4</span><h3>Bounded agent</h3><p>Executes approved actions within policy limits.</p><small>Human handles exceptions</small></section>
+            </div>
+            <p class="spectrum-note"><strong>Autonomy has several controls:</strong> tool selection, sequencing, execution authority, stopping conditions, and approval requirements.</p>
+          </div>
+        </section>
+
+        <section class="slide" data-title="The evolution of agentic systems">
+          <div class="slide__content evolution-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">04</p><h2>Five stages shaped modern agentic systems</h2><p>Each stage increased what the system could access, decide, or execute.</p></header>
+            <ol class="evolution-timeline">
+              <li><time>Before 2022</time><strong>Generate and retrieve</strong><p>Models produced text and used retrieved documents for grounded answers.</p></li>
+              <li><time>2022</time><strong>Reason and act</strong><p>ReAct showed how models could interleave reasoning with actions.</p></li>
+              <li><time>2023</time><strong>Call functions</strong><p>Structured function calling connected models to application logic.</p></li>
+              <li><time>2024</time><strong>Connect systems</strong><p>MCP standardized connections to tools and enterprise data.</p></li>
+              <li><time>2025–26</time><strong>Govern execution</strong><p>Tracing, approvals, evaluation, and sandboxing became production concerns.</p></li>
+            </ol>
+            <p class="source-line">Sources: ReAct paper, OpenAI function calling announcement, Anthropic MCP announcement, and OpenAI agent documentation</p>
+          </div>
+        </section>
+
+        <section class="slide" data-title="How organizations adopted agents">
+          <div class="slide__content adoption-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">05</p><h2>Organizations increased autonomy with the risk of the action</h2><p>Adoption usually began with information and advanced toward controlled execution.</p></header>
+            <div class="adoption-stages">
+              <section><span>Answer</span><h3>Knowledge assistance</h3><p>Search, summaries, policy questions, and drafted responses.</p><small>The human acts</small></section>
+              <section><span>Recommend</span><h3>Decision support</h3><p>Case findings, investigation summaries, and recommended actions.</p><small>The human decides</small></section>
+              <section><span>Prepare</span><h3>Approval workflows</h3><p>Completed forms, prepared refunds, and proposed account changes.</p><small>The human approves</small></section>
+              <section><span>Execute</span><h3>Bounded automation</h3><p>Routine and reversible actions performed within policy limits.</p><small>The human handles exceptions</small></section>
+            </div>
+            <p class="adoption-note">Confidence grows through reliable evidence, explicit controls, and repeatable evaluation.</p>
+          </div>
+        </section>
+
+        <section class="slide" data-title="The growing decision surface">
+          <div class="slide__content decision-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">06</p><h2>The problem: more connections create more decisions</h2><p>Direct exposure makes the model choose among overlapping tools and rebuild repeatable workflows.</p></header>
+            <div class="tool-surface">
+              <section class="tool-surface__small"><span>Early prototype</span><h3>Three distinct tools</h3><ul><li>Search customer</li><li>Find order</li><li>Search policy</li></ul></section>
+              <section class="tool-surface__large"><span>Production system</span><h3>Overlapping tools and systems</h3><div><ul><li>Customer tools</li><li>Order tools</li><li>Payment tools</li><li>Shipping tools</li></ul><ul><li>Policy systems</li><li>Databases</li><li>MCP servers</li><li>Specialist agents</li></ul></div></section>
+            </div>
+            <div class="decision-questions"><span>Which tool?</span><span>Which order?</span><span>Which evidence?</span><span>When to stop?</span></div>
+            <p class="question-banner">The production challenge shifted from connecting capabilities to controlling decisions.</p>
+          </div>
+        </section>
+
+        <section class="slide" data-title="The production cost of direct tool exposure">
+          <div class="slide__content consequences-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">07</p><h2>Direct tool exposure creates production costs</h2><p>The impact extends beyond choosing the wrong tool.</p></header>
+            <div class="consequences-grid">
+              <section><span>01</span><h3>Routing ambiguity</h3><p>Similar tools make selection and argument choice less reliable.</p></section>
+              <section><span>02</span><h3>Latency and failures</h3><p>Sequential calls add waiting, retries, timeouts, and dependency failures.</p></section>
+              <section><span>03</span><h3>Token and context cost</h3><p>Tool schemas and raw results consume context that the model needs for evidence.</p></section>
+              <section><span>04</span><h3>Inconsistent execution</h3><p>The same request can follow a different sequence and produce a different outcome.</p></section>
+              <section><span>05</span><h3>Evaluation and debugging</h3><p>More possible paths make failures harder to reproduce, trace, and isolate.</p></section>
+              <section><span>06</span><h3>Security and authority</h3><p>The model may see sensitive data or action tools outside its responsibility.</p></section>
+            </div>
+            <p class="consequences-note">Tool count alone does not create the problem. Risk grows when tools overlap, workflows repeat, and low-level implementation reaches the main model.</p>
+          </div>
+        </section>
+
+        <section class="slide" data-title="One delivery question creates nine tool decisions">
+          <div class="slide__content tool-decisions-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">08</p><h2>One delivery question creates nine tool decisions</h2><p>Problem in practice: direct exposure turns a familiar customer request into a tool-planning task.</p></header>
+            <blockquote class="tool-decisions-request">“Why has my order not arrived, and what can you do about it?”</blockquote>
+            <div class="tool-decisions-body">
+              <div class="raw-tool-list" aria-label="Nine tools exposed to the model">
+                <code>get_customer()</code><code>get_orders()</code><code>get_shipment()</code>
+                <code>get_carrier_events()</code><code>get_support_history()</code><code>get_active_incidents()</code>
+                <code>search_policy()</code><code>check_refund_eligibility()</code><code>check_replacement_eligibility()</code>
+              </div>
+              <ol class="model-decisions">
+                <li><span>01</span>Which tool applies?</li>
+                <li><span>02</span>What arguments should it receive?</li>
+                <li><span>03</span>What order should the calls follow?</li>
+                <li><span>04</span>Which results matter?</li>
+                <li><span>05</span>Does the model need another call?</li>
+                <li><span>06</span>When should the investigation stop?</li>
+              </ol>
+            </div>
+            <p class="tool-decisions-note">The tools are individually useful. The burden comes from rebuilding the same investigation through model choice on every case.</p>
+          </div>
+        </section>
+
+        <section class="slide" data-title="The model rebuilds the workflow">
+          <div class="slide__content workflow-rebuild-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">09</p><h2>The model rebuilds the same workflow on every case</h2><p>Production impact: reconstructing a valid investigation repeatedly introduces avoidable variation.</p></header>
+            <ol class="workflow-rebuild" aria-label="Delivery investigation rebuilt by the model">
+              <li><span>1</span><strong>Find the customer</strong><code>get_customer()</code></li>
+              <li><span>2</span><strong>Locate the order</strong><code>get_orders()</code></li>
+              <li><span>3</span><strong>Find the shipment</strong><code>get_shipment()</code></li>
+              <li><span>4</span><strong>Inspect movement</strong><code>get_carrier_events()</code></li>
+              <li><span>5</span><strong>Check disruption</strong><code>get_active_incidents()</code></li>
+              <li><span>6</span><strong>Evaluate resolution</strong><code>eligibility tools</code></li>
+              <li><span>7</span><strong>Retrieve policy</strong><code>search_policy()</code></li>
+              <li><span>8</span><strong>Decide to stop</strong><code>enough evidence?</code></li>
+            </ol>
+            <div class="workflow-failures"><span>Similar tool selected</span><span>Verification skipped</span><span>Calls repeated</span><span>Results conflict</span><span>Stopped too early</span></div>
+            <p class="workflow-rebuild-note">Every choice repeats: tool, arguments, sequence, relevant evidence, and stopping point.</p>
+          </div>
+        </section>
+
+        <section class="slide" data-title="Repeatable choreography below the main model">
+          <div class="slide__content orchestration-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">10</p><h2>The solution: domain tool abstraction</h2><p>Keep the underlying connectivity. Reduce the decisions exposed to the main model.</p></header>
+            <div class="orchestration-compare">
+              <section class="orchestration-direct">
+                <span>Direct exposure</span><h3>The model orchestrates every call</h3>
+                <div class="architecture-model">Main model</div>
+                <div class="architecture-tools"><code>API</code><code>MCP</code><code>Database</code><code>Search</code><code>Policy</code><code>Workflow</code></div>
+                <p>Model owns routing, ordering, result selection, and stopping.</p>
+              </section>
+              <section class="orchestration-layered">
+                <span>Domain abstraction</span><h3>The model selects one business capability</h3>
+                <div class="architecture-model">Main model</div>
+                <div class="architecture-domain"><code>investigate_delivery_issue()</code></div>
+                <div class="architecture-internal"><strong>Internal orchestration</strong><small>APIs, MCP tools, databases, rules, and bounded model tasks</small></div>
+                <p>Software owns the repeatable sequence and returns structured evidence.</p>
+              </section>
+            </div>
+            <div class="solution-principles">
+              <section><strong>Connectivity remains</strong><span>APIs, MCP tools, databases, and rules still perform the work.</span></section>
+              <section><strong>Visibility narrows</strong><span>The model sees bounded capabilities aligned to business intent.</span></section>
+              <section><strong>Authority stays controlled</strong><span>The system continues to enforce permission and approval boundaries.</span></section>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide" data-title="A bounded delivery capability request">
+          <div class="slide__content bounded-request-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">11</p><h2>A delivery investigation starts with one bounded request</h2><p>The contract defines what the capability may read, decide, and return.</p></header>
+            <blockquote class="bounded-customer-request">“My order was supposed to arrive six days ago. What happened, and what can you do?”</blockquote>
+            <div class="bounded-request-body">
+              <div class="bounded-call"><span>Main model selects the capability</span><code>investigate_delivery_issue(<br />&nbsp;&nbsp;customer_id="C-1842",<br />&nbsp;&nbsp;order_id="O-7831"<br />)</code></div>
+              <dl class="capability-contract">
+                <div><dt>Purpose</dt><dd>Diagnose the delivery problem and identify allowed resolutions.</dd></div>
+                <div><dt>Inputs</dt><dd>Customer and order identifiers.</dd></div>
+                <div><dt>Output</dt><dd>Structured findings, eligibility, and evidence references.</dd></div>
+                <div><dt>Authority</dt><dd>Read-only investigation. It cannot issue a refund or replacement.</dd></div>
+                <div><dt>Failure behavior</dt><dd>Returns missing evidence and system errors explicitly.</dd></div>
+              </dl>
+            </div>
+            <p class="bounded-request-note">The model identifies the intent and supplies the identifiers. The capability owns the investigation.</p>
+          </div>
+        </section>
+
+        <section class="slide" data-title="The internal delivery investigation">
+          <div class="slide__content internal-run-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">12</p><h2>The capability runs the standard investigation</h2><p>The internal sequence stays consistent while the evidence changes from case to case.</p></header>
+            <div class="run-table" role="table" aria-label="Internal delivery investigation">
+              <div class="run-table__head" role="row"><span>Internal step</span><span>System</span><span>Example result</span></div>
+              <div role="row"><strong>Retrieve order</strong><span>Order API</span><span>Order found, shipment S-102</span></div>
+              <div role="row"><strong>Retrieve shipment</strong><span>Shipment API</span><span>Still in transit</span></div>
+              <div role="row"><strong>Inspect carrier events</strong><span>Carrier API</span><span>No movement for six days</span></div>
+              <div role="row"><strong>Check incidents</strong><span>Incident service</span><span>Disruption I-74 affects the route</span></div>
+              <div role="row"><strong>Evaluate resolutions</strong><span>Rules engine</span><span>Replacement allowed, refund unavailable</span></div>
+              <div role="row"><strong>Retrieve policy</strong><span>Policy search</span><span>Policy 5.2 supports the result</span></div>
+              <div role="row"><strong>Assemble evidence</strong><span>Orchestration layer</span><span>One normalized response</span></div>
+            </div>
+            <p class="internal-run-note">The capability handles retries, timeouts, and partial evidence. It performs no write action.</p>
+          </div>
+        </section>
+
+        <section class="slide" data-title="Structured evidence and allowed options">
+          <div class="slide__content evidence-return-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">13</p><h2>The model receives evidence and allowed options</h2><p>The capability compresses the investigation into a result the model can explain.</p></header>
+            <div class="evidence-return-body">
+              <pre><code>{
+  "issue": "delivery_delay",
+  "delay_days": 6,
+  "shipment_status": "stuck_in_transit",
+  "active_incident": true,
+  "refund_eligible": false,
+  "replacement_eligible": true,
+  "recommended_action": "offer_replacement",
+  "evidence_ids": [
+    "shipment-102", "incident-74", "policy-5.2"
+  ]
+}</code></pre>
+              <section class="model-work"><span>Main model</span><h3>Conversation and judgment</h3><ul><li>Explain what happened</li><li>Connect the evidence to the customer’s question</li><li>Present the supported option</li><li>Ask a clarifying question when needed</li><li>Request approval before a consequential action</li></ul></section>
+            </div>
+            <blockquote class="evidence-response">“Your shipment has not moved for six days, and the carrier has reported a disruption affecting the route. This order is eligible for a replacement. I can arrange that now, subject to the required approval.”</blockquote>
+            <p class="evidence-return-note">Rules determine the supported options. The model explains them and manages the conversation.</p>
+          </div>
+        </section>
+
+        <section class="slide" data-title="Nine visible tools become one domain capability">
+          <div class="slide__content abstraction-result-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">14</p><h2>Nine visible tools become one domain capability</h2><p>The underlying systems remain. Their routine choreography moves behind a stable contract.</p></header>
+            <div class="abstraction-table" role="table" aria-label="Direct tool exposure and domain capability comparison">
+              <div class="abstraction-table__head" role="row"><span>Direct tool exposure</span><span>Domain capability</span></div>
+              <div role="row"><span>Nine low-level tools visible</span><strong>One delivery capability visible</strong></div>
+              <div role="row"><span>Model selects and sequences calls</span><strong>Software owns the standard sequence</strong></div>
+              <div role="row"><span>Multiple raw responses enter context</span><strong>One structured evidence object returns</strong></div>
+              <div role="row"><span>Investigation path can vary by run</span><strong>Standard cases follow a consistent path</strong></div>
+              <div role="row"><span>Policy and eligibility need separate routing</span><strong>Rules and policy run inside the capability</strong></div>
+              <div role="row"><span>Many paths need evaluation</span><strong>Contract and internal steps can be tested separately</strong></div>
+              <div role="row"><span>Broad backend access</span><strong>Bounded domain responsibility</strong></div>
+            </div>
+            <p class="abstraction-result-note">The nine underlying capabilities still exist. The main model no longer orchestrates them individually.</p>
+          </div>
+        </section>
+
+        <section class="slide" data-title="Another example: loan eligibility">
+          <div class="slide__content loan-case-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">15</p><h2>Another example: a loan officer needs a governed decision</h2><p>Illustrative example. The decision uses hypothetical product rules.</p></header>
+            <div class="loan-problem"><strong>Problem statement</strong><p>A loan officer needs to determine whether an applicant is eligible for a loan and explain the specific reason for the decision.</p></div>
+            <div class="loan-case-body">
+              <section class="loan-case-factors">
+                <span>Approved factors</span>
+                <h3>The capability checks three requirements</h3>
+                <ol><li><strong>Identity</strong><p>Verification is complete.</p></li><li><strong>Income</strong><p>Verified income meets the product requirement.</p></li><li><strong>Debt-to-income ratio</strong><p>The ratio is within the product limit.</p></li></ol>
+              </section>
+              <section class="loan-case-result">
+                <span>Loan officer asks</span>
+                <blockquote>“Is this applicant eligible for the loan? If not, what requirement failed?”</blockquote>
+                <code>check_loan_eligibility(<br />&nbsp;&nbsp;applicant_id,<br />&nbsp;&nbsp;loan_product_id<br />)</code>
+                <div><strong>Decision</strong><b>Not eligible</b></div>
+                <div><strong>Reason</strong><b>Debt-to-income ratio exceeds the product limit</b></div>
+              </section>
+            </div>
+            <p class="loan-case-note">The loan officer receives a decision and its reason. The officer does not need to reconstruct the calculations.</p>
+            <p class="loan-disclaimer">Illustrative only. Real lending requires approved underwriting policies, fair lending controls, required disclosures, and governed exceptions.</p>
+          </div>
+        </section>
+
+        <section class="slide" data-title="Approach 1: prompt-owned workflow">
+          <div class="slide__content prompt-detail-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">16</p><h2>Approach 1: the prompt owns the workflow</h2><p>The model receives every low-level tool and the instructions for applying the decision logic.</p></header>
+            <div class="prompt-detail-body">
+              <pre><code>You assist loan officers with product eligibility.
+
+For the selected applicant and loan product:
+
+1. Call get_identity_status(applicant_id)
+2. Call get_verified_income(applicant_id)
+3. Call get_debt_obligations(applicant_id)
+4. Retrieve the current product thresholds
+5. Calculate the debt-to-income ratio
+6. Apply every eligibility requirement
+
+If any required data is missing, do not decide.
+
+Return:
+- eligible: true or false
+- failed requirement
+- reason for the loan officer</code></pre>
+              <section class="prompt-responsibilities">
+                <span>The model must</span>
+                <ol><li>Select four tools</li><li>Sequence the calls</li><li>Interpret each response</li><li>Perform the calculation</li><li>Apply the product rules</li><li>Handle missing data</li><li>Explain the decision</li></ol>
+              </section>
+            </div>
+            <p class="prompt-detail-note">One prompt now owns routing, sequencing, arithmetic, policy application, error handling, and explanation.</p>
+          </div>
+        </section>
+
+        <section class="slide" data-title="Approach 2: domain-owned capability">
+          <div class="slide__content capability-detail-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">17</p><h2>Approach 2: a domain capability owns the decision</h2><p>The prompt becomes shorter because versioned software owns the repeatable logic.</p></header>
+            <div class="capability-detail-body">
+              <section class="capability-prompt">
+                <span>Prompt shown to the model</span>
+                <pre><code>When a loan officer asks about eligibility,
+call:
+
+check_loan_eligibility(
+  applicant_id,
+  loan_product_id
+)
+
+Use the returned decision, reason code,
+and evaluated factors exactly.
+
+Do not recalculate or override the result.
+
+If the result is unable_to_determine,
+request the listed missing information.
+
+Explain the result clearly.</code></pre>
+              </section>
+              <section class="capability-inside">
+                <span>Inside the capability</span>
+                <ol><li><strong>Retrieve governed inputs</strong><small>Identity, verified income, debt obligations</small></li><li><strong>Load versioned product rules</strong><small>Approved thresholds and required factors</small></li><li><strong>Calculate the ratio</strong><small>Deterministic arithmetic in code</small></li><li><strong>Evaluate eligibility</strong><small>Rules engine returns the failed requirement</small></li><li><strong>Assemble the result</strong><small>Decision, reason code, factors, missing data</small></li></ol>
+              </section>
+            </div>
+            <p class="capability-detail-note">The prompt selects the capability and explains the result. Versioned software owns the decision.</p>
+          </div>
+        </section>
+
+        <section class="slide" data-title="Implementation lessons from both cases">
+          <div class="slide__content implementation-lessons-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">18</p><h2>Implementation lessons from both cases</h2><p>The delivery investigation and eligibility decision use the same design discipline.</p></header>
+            <ol class="implementation-lessons">
+              <li><span>01</span><strong>Start with a recurring business question</strong><p>Define the outcome the user needs and the stopping condition.</p></li>
+              <li><span>02</span><strong>Create one bounded domain capability</strong><p>Give it a clear purpose, inputs, output, authority, and failure behavior.</p></li>
+              <li><span>03</span><strong>Put predictable choreography in software</strong><p>Code should own standard retrieval, calculations, joins, and policy checks.</p></li>
+              <li><span>04</span><strong>Return structured evidence</strong><p>Include the result, reason code, evaluated factors, missing inputs, and evidence references.</p></li>
+              <li><span>05</span><strong>Separate investigation from action</strong><p>Reading evidence and recommending an option should not automatically authorize a consequential action.</p></li>
+              <li><span>06</span><strong>Evaluate each layer independently</strong><p>Test routing, retrieval, rules, evidence assembly, explanation, and authorization.</p></li>
+            </ol>
+            <p class="implementation-lessons-note">Give the model the smallest meaningful problem that still requires judgment.</p>
+          </div>
+        </section>
+
+        <section class="slide" data-title="Industry patterns for domain expertise">
+          <div class="slide__content industry-patterns-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">19</p><h2>Industry patterns for domain expertise and orchestration</h2><p>Related patterns solve different problems. The names describe where expertise and control live.</p></header>
+            <div class="industry-patterns">
+              <section>
+                <span>Product architecture</span><h3>Domain capability</h3>
+                <p>Developers expose one business-level operation backed by APIs, rules, and workflows.</p>
+                <strong>Best for</strong><p>Stable, repeated, policy-sensitive work such as delivery investigations and loan eligibility.</p>
+              </section>
+              <section>
+                <span>OpenAI and Claude APIs</span><h3>Programmatic Tool Calling</h3>
+                <p>The model writes bounded code that coordinates several tools and reduces intermediate results.</p>
+                <strong>Best for</strong><p>Predictable multi-call processing with loops, conditions, filtering, or aggregation.</p>
+              </section>
+              <section>
+                <span>Claude and agent platforms</span><h3>Skills and specialist agents</h3>
+                <p>Skills package domain instructions, scripts, and resources. Specialist agents handle delegated work.</p>
+                <strong>Best for</strong><p>Reusable procedures or open-ended tasks that benefit from isolated expertise.</p>
+              </section>
+            </div>
+            <p class="industry-patterns-note"><strong>Terminology:</strong> Advanced tool use is a broad umbrella. These two cases use domain abstraction and bounded orchestration.</p>
+            <p class="industry-sources">Sources: <a href="https://developers.openai.com/api/docs/guides/tools-programmatic-tool-calling">OpenAI Programmatic Tool Calling</a>, <a href="https://www.anthropic.com/research/advanced-tool-use">Anthropic Advanced Tool Use</a>, <a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills">Anthropic Agent Skills</a></p>
+          </div>
+        </section>
+
+        <section class="slide section-divider" data-title="Where should reasoning happen?">
+          <div class="slide__content divider-layout divider-layout--coral"><p class="section-number">10</p><h2>Design question 2</h2><p class="divider-question">Where should reasoning happen?</p><p class="divider-source">Based on “Designing Reasoning Boundaries in Agentic Systems”</p></div>
+        </section>
+
+        <section class="slide" data-title="Reasoning boundaries">
+          <div class="slide__content reasoning-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">11</p><h2>Each decision belongs to the mechanism with the clearest contract</h2><p>Model reasoning is valuable when interpretation is necessary.</p></header>
+            <div class="execution-layers">
+              <section><span>Software and rules</span><h3>Compute known answers</h3><ul><li>Retrieve records</li><li>Calculate delays</li><li>Enforce policy thresholds</li><li>Validate permissions</li></ul></section>
+              <section><span>Bounded model task</span><h3>Interpret messy evidence</h3><ul><li>Categorize carrier notes</li><li>Summarize support history</li><li>Extract evidence from unstructured text</li></ul></section>
+              <section><span>Main model</span><h3>Understand and explain</h3><ul><li>Interpret the customer’s goal</li><li>Ask for missing information</li><li>Explain supported options</li></ul></section>
+            </div>
+            <p class="reasoning-rule">Use software when the answer can be computed. Use a model when the input must be interpreted.</p>
+          </div>
+        </section>
+
+        <section class="slide" data-title="A task split across the right mechanisms">
+          <div class="slide__content mechanism-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">12</p><h2>One investigation uses several execution mechanisms</h2><p>Only the ambiguous steps need model judgment.</p></header>
+            <div class="mechanism-table" role="table" aria-label="Investigation steps and execution mechanisms">
+              <div class="mechanism-table__head" role="row"><span>Investigation step</span><span>Mechanism</span><span>Reason</span></div>
+              <div role="row"><span>Retrieve order and shipment</span><strong>API</strong><span>Known record lookup</span></div><div role="row"><span>Calculate days delayed</span><strong>Code</strong><span>Deterministic arithmetic</span></div><div role="row"><span>Interpret the carrier note</span><strong>Bounded LLM</strong><span>Unstructured language</span></div><div role="row"><span>Check replacement eligibility</span><strong>Rules</strong><span>Fixed policy conditions</span></div><div role="row"><span>Explain the available options</span><strong>Main LLM</strong><span>User-specific explanation</span></div>
+            </div>
+            <p class="mechanism-note">Treat every model output as untrusted input. Validate its schema, categories, evidence references, and allowed scope.</p>
+          </div>
+        </section>
+
+        <section class="slide section-divider" data-title="How do we know it worked?">
+          <div class="slide__content divider-layout divider-layout--gold"><p class="section-number">13</p><h2>Design question 3</h2><p class="divider-question">How do we know it worked?</p><p class="divider-source">Based on “How Do You Evaluate an Agent That Calls Tools That Call Other Tools?”</p></div>
+        </section>
+
+        <section class="slide" data-title="Layered evaluation">
+          <div class="slide__content eval-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">14</p><h2>Evaluate the system at the same seams where it runs</h2><p>A convincing final answer can hide an earlier failure.</p></header>
+            <ol class="eval-seams">
+              <li><span>1</span><strong>Routing</strong><p>Did the agent select the correct domain tool?</p></li><li><span>2</span><strong>Evidence</strong><p>Did the tool retrieve the correct records?</p></li><li><span>3</span><strong>Rules</strong><p>Did the code apply policy to the right inputs?</p></li><li><span>4</span><strong>Model findings</strong><p>Did interpretation stay within the evidence?</p></li><li><span>5</span><strong>Final response</strong><p>Can every claim be traced to a supported result?</p></li>
+            </ol>
+            <p class="eval-note">Use deterministic tests for known answers. Reserve model-based judging for tasks that require interpretation.</p>
+          </div>
+        </section>
+
+        <section class="slide" data-title="Tracing the execution path">
+          <div class="slide__content trace-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">15</p><h2>The trace turns a result into an explainable execution</h2><p>Each run should preserve the decisions, inputs, outputs, and evidence used along the way.</p></header>
+            <div class="execution-trace">
+              <section><span>Request</span><p>What did the user ask?</p></section><section><span>Selected tool</span><p>Which capability did the agent choose?</p></section><section><span>Evidence</span><p>Which records and sources were returned?</p></section><section><span>Rules and findings</span><p>Which calculations and interpretations shaped the recommendation?</p></section><section><span>Action and response</span><p>What did the system propose, execute, and explain?</p></section>
+            </div>
+            <div class="trace-tests"><span>Schema validation</span><span>Golden datasets</span><span>Grounding checks</span><span>Human review for costly errors</span></div>
+          </div>
+        </section>
+
+        <section class="slide" data-title="Production design checklist">
+          <div class="slide__content checklist-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">16</p><h2>A production agent needs explicit design decisions</h2><p>The model cannot compensate for unclear ownership across the surrounding system.</p></header>
+            <div class="production-checklist">
+              <section><strong>Goal</strong><p>Define success and the stopping condition.</p></section><section><strong>Tool surface</strong><p>Expose domain capabilities with distinct responsibilities.</p></section><section><strong>Reasoning boundary</strong><p>Keep calculations, validation, and policy enforcement in software.</p></section><section><strong>Action authority</strong><p>Specify which actions require approval.</p></section><section><strong>Evidence contract</strong><p>Return typed facts, model findings, and missing sources separately.</p></section><section><strong>Evaluation</strong><p>Test routing, evidence, rules, model findings, and final claims.</p></section>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide article-links-slide" data-title="Articles and references">
+          <div class="slide__content article-links-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">17</p><h2>Articles and references</h2><p>The talk develops the argument across three related articles.</p></header>
+            <ol class="article-links">
+              <li><span>Part 1</span><a href="https://hackernoon.com/your-ai-agent-should-not-be-talking-to-all-mcp-tools">Your AI Agent Should Not Be Talking to All MCP Tools</a><p>Tool visibility and domain abstraction</p></li>
+              <li><span>Part 2</span><a href="https://hackernoon.com/designing-reasoning-boundaries-in-agentic-systems">Designing Reasoning Boundaries in Agentic Systems</a><p>Software, model reasoning, and human approval</p></li>
+              <li><span>Part 3</span><a href="https://hackernoon.com/how-do-you-evaluate-an-agent-that-calls-tools-that-call-other-tools">How Do You Evaluate an Agent That Calls Tools That Call Other Tools?</a><p>Layered evaluation and execution traces</p></li>
+            </ol>
+            <p class="article-links-note">Additional references: ReAct, OpenAI function calling, Anthropic MCP, and OpenAI agent documentation.</p>
+          </div>
+        </section>
+
+        <section class="slide slide--closing" data-title="Reliable agents have deliberate boundaries">
+          <div class="slide__content closing-layout">
+            <div class="closing-copy"><p class="deck-series">The production discipline</p><h2>Reliable agents have deliberate boundaries</h2></div>
+            <div class="ownership-split">
+              <section><h3>Control the decisions</h3><p>Give the model domain capabilities and reserve model reasoning for tasks that require interpretation.</p></section>
+              <section><h3>Preserve the evidence</h3><p>Trace and evaluate every layer before trusting the final answer or action.</p></section>
+            </div>
+            <p class="closing-result">The goal is the right autonomy, at the right layer, with enough evidence to trust the outcome.</p>
+          </div>
+        </section>
+      </div>
+
+      <nav class="deck-controls" aria-label="Slide controls">
+        <button id="previous" type="button" aria-label="Previous slide">←</button><span><b id="current-slide">1</b> / <span id="total-slides">30</span></span><button id="next" type="button" aria-label="Next slide">→</button><button id="help-button" type="button" aria-label="Keyboard shortcuts" aria-expanded="false">?</button>
+      </nav>
+      <div class="progress" aria-hidden="true"><span id="progress-fill"></span></div>
+      <aside id="help-panel" class="help-panel" hidden><p><kbd>←</kbd> <kbd>→</kbd> move between slides</p><p><kbd>Home</kbd> <kbd>End</kbd> jump to the first or last slide</p><p><kbd>F</kbd> enters or exits full screen</p></aside>
+    </main>
+  </body>
+</html>
