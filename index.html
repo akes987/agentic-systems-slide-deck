@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="A practical talk on what agentic systems are, how they evolved, and how to design reliable production agents." />
     <title>Building agentic systems</title>
-    <link rel="stylesheet" href="styles.css?v=agentic-talk-7" />
-    <script src="script.js?v=agentic-talk-6" defer></script>
+    <link rel="stylesheet" href="styles.css?v=agentic-talk-10" />
+    <script src="script.js?v=agentic-talk-9" defer></script>
   </head>
   <body>
     <main class="deck" aria-label="Building agentic systems">
@@ -411,65 +411,235 @@ Explain the result clearly.</code></pre>
           <div class="slide__content divider-layout divider-layout--coral"><p class="section-number">10</p><h2>Design question 2</h2><p class="divider-question">Where should reasoning happen?</p><p class="divider-source">Based on “Designing Reasoning Boundaries in Agentic Systems”</p></div>
         </section>
 
-        <section class="slide" data-title="Reasoning boundaries">
-          <div class="slide__content reasoning-layout">
-            <header class="slide-heading slide-heading--compact"><p class="section-number">11</p><h2>Each decision belongs to the mechanism with the clearest contract</h2><p>Model reasoning is valuable when interpretation is necessary.</p></header>
+        <section class="slide" data-title="The three execution layers">
+          <div class="slide__content reasoning-layout reasoning-layout--layers">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">11</p><h2>The three execution layers</h2><p>Each layer owns a different kind of decision and exposes a clear contract to the next one.</p></header>
             <div class="execution-layers">
-              <section><span>Software and rules</span><h3>Compute known answers</h3><ul><li>Retrieve records</li><li>Calculate delays</li><li>Enforce policy thresholds</li><li>Validate permissions</li></ul></section>
-              <section><span>Bounded model task</span><h3>Interpret messy evidence</h3><ul><li>Categorize carrier notes</li><li>Summarize support history</li><li>Extract evidence from unstructured text</li></ul></section>
-              <section><span>Main model</span><h3>Understand and explain</h3><ul><li>Interpret the customer’s goal</li><li>Ask for missing information</li><li>Explain supported options</li></ul></section>
+              <section><span>Ordinary software</span><h3>Compute and enforce</h3><ul><li>Retrieve records from known systems</li><li>Calculate exact values</li><li>Apply policy and permission rules</li><li>Validate schemas and allowed values</li></ul></section>
+              <section><span>Bounded inner model</span><h3>Interpret evidence</h3><ul><li>Classify unstructured notes</li><li>Extract findings from messy text</li><li>Return typed fields with evidence references</li><li>Stay inside a narrow semantic task</li></ul></section>
+              <section><span>Main model</span><h3>Understand and explain</h3><ul><li>Interpret the user’s goal</li><li>Ask for missing information</li><li>Synthesize the supported result</li><li>Explain the available options</li></ul></section>
             </div>
+            <div class="authority-band"><strong>Human approval boundary</strong><span>Consequential actions cross an explicit authority check before execution.</span></div>
             <p class="reasoning-rule">Use software when the answer can be computed. Use a model when the input must be interpreted.</p>
           </div>
         </section>
 
-        <section class="slide" data-title="A task split across the right mechanisms">
-          <div class="slide__content mechanism-layout">
-            <header class="slide-heading slide-heading--compact"><p class="section-number">12</p><h2>One investigation uses several execution mechanisms</h2><p>Only the ambiguous steps need model judgment.</p></header>
-            <div class="mechanism-table" role="table" aria-label="Investigation steps and execution mechanisms">
-              <div class="mechanism-table__head" role="row"><span>Investigation step</span><span>Mechanism</span><span>Reason</span></div>
-              <div role="row"><span>Retrieve order and shipment</span><strong>API</strong><span>Known record lookup</span></div><div role="row"><span>Calculate days delayed</span><strong>Code</strong><span>Deterministic arithmetic</span></div><div role="row"><span>Interpret the carrier note</span><strong>Bounded LLM</strong><span>Unstructured language</span></div><div role="row"><span>Check replacement eligibility</span><strong>Rules</strong><span>Fixed policy conditions</span></div><div role="row"><span>Explain the available options</span><strong>Main LLM</strong><span>User-specific explanation</span></div>
+        <section class="slide" data-title="Two bad reasoning boundaries">
+          <div class="slide__content boundary-failures-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">12</p><h2>Two bad reasoning boundaries</h2><p>Both failure modes assign work to a mechanism that cannot guarantee the right behavior.</p></header>
+            <div class="boundary-failures">
+              <section>
+                <span>Failure mode 1</span><h3>The model becomes the calculator</h3>
+                <p class="boundary-example">“Read these timestamps, calculate the delay, apply the refund threshold, and verify the approval limit.”</p>
+                <ul><li>Exact work depends on prompt interpretation</li><li>Small wording changes can alter the result</li><li>Policy enforcement becomes difficult to test</li></ul>
+              </section>
+              <section>
+                <span>Failure mode 2</span><h3>Code becomes the language interpreter</h3>
+                <p class="boundary-example"><code>if "lost" or "stuck" or "not moving" ...</code></p>
+                <ul><li>Rules multiply as language varies</li><li>Ambiguous evidence falls through brittle branches</li><li>Maintenance grows faster than coverage</li></ul>
+              </section>
             </div>
-            <p class="mechanism-note">Treat every model output as untrusted input. Validate its schema, categories, evidence references, and allowed scope.</p>
+            <p class="boundary-failures-note"><strong>Boundary rule:</strong> Put computable work in software. Use a bounded model call for semantic interpretation.</p>
+          </div>
+        </section>
+
+        <section class="slide" data-title="A practical reasoning-boundary test">
+          <div class="slide__content mechanism-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">13</p><h2>A practical reasoning-boundary test</h2><p>Start with the nature of the work, then assign the narrowest mechanism that can perform it reliably.</p></header>
+            <div class="mechanism-table mechanism-table--decision" role="table" aria-label="Task types and execution mechanisms">
+              <div class="mechanism-table__head" role="row"><span>Nature of the work</span><span>Mechanism</span><span>Example</span></div>
+              <div role="row"><span>Retrieve a known record</span><strong>API or database</strong><span>Order and shipment lookup</span></div>
+              <div role="row"><span>Transform or calculate an exact result</span><strong>Code</strong><span>Days delayed</span></div>
+              <div role="row"><span>Apply a fixed policy condition</span><strong>Rules</strong><span>Replacement eligibility</span></div>
+              <div role="row"><span>Interpret unstructured evidence</span><strong>Bounded LLM</strong><span>Meaning of a carrier note</span></div>
+              <div role="row"><span>Synthesize an open-ended response</span><strong>Main LLM</strong><span>Explain supported options</span></div>
+              <div role="row"><span>Approve a high-impact exception</span><strong>Human</strong><span>Action beyond agent authority</span></div>
+            </div>
+            <p class="mechanism-note">Treat every model output as untrusted input. Validate its schema, allowed values, evidence references, and required fields.</p>
           </div>
         </section>
 
         <section class="slide section-divider" data-title="How do we know it worked?">
-          <div class="slide__content divider-layout divider-layout--gold"><p class="section-number">13</p><h2>Design question 3</h2><p class="divider-question">How do we know it worked?</p><p class="divider-source">Based on “How Do You Evaluate an Agent That Calls Tools That Call Other Tools?”</p></div>
+          <div class="slide__content divider-layout divider-layout--gold"><p class="section-number">14</p><h2>Design question 3</h2><p class="divider-question">How do we know it worked?</p><p class="divider-source">Based on “How Do You Evaluate an Agent That Calls Tools That Call Other Tools?”</p></div>
         </section>
 
-        <section class="slide" data-title="Layered evaluation">
+        <section class="slide" data-title="What agent evaluation measures">
+          <div class="slide__content eval-definition-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">15</p><h2>Evaluation measures how reliably the agent behaves</h2><p>Agent quality includes the decisions and evidence behind the final answer.</p></header>
+            <blockquote class="eval-definition">Evaluation is a repeatable process for measuring whether an agent makes the right decisions, uses the correct evidence, follows policy, and completes the user’s task across representative cases.</blockquote>
+            <div class="eval-importance">
+              <section><strong>Behavior varies</strong><p>Similar requests can produce different tool choices and execution paths.</p></section>
+              <section><strong>Failures stay hidden</strong><p>A polished answer can conceal an incorrect record, rule result, or unsupported claim.</p></section>
+              <section><strong>Changes create regressions</strong><p>A model, prompt, tool, policy, or adapter change can shift behavior elsewhere.</p></section>
+              <section><strong>Actions have consequences</strong><p>Incorrect refunds, approvals, or account actions can create real operational harm.</p></section>
+            </div>
+            <p class="eval-definition-note">Evaluation measures both the outcome and the path the system used to reach it.</p>
+          </div>
+        </section>
+
+        <section class="slide" data-title="Software testing and agent evaluation">
+          <div class="slide__content testing-eval-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">16</p><h2>Software testing and agent evaluation</h2><p>Software tests verify deterministic components. Evaluation measures complete system behavior.</p></header>
+            <div class="testing-eval-compare">
+              <section class="software-test">
+                <span>Software test</span><h3>Does a component return the exact expected result?</h3>
+                <div class="test-fixture"><code>last_movement = 6 days</code><code>active_incident = true</code></div>
+                <dl><div><dt>Delay calculation</dt><dd><strong>6 days</strong></dd></div><div><dt>Refund eligible</dt><dd><strong>false</strong></dd></div><div><dt>Replacement eligible</dt><dd><strong>true</strong></dd></div></dl>
+                <p>One input, one exact output, pass or fail.</p>
+              </section>
+              <section class="agent-evaluation">
+                <span>Agent evaluation</span><h3>Does the complete agent behave correctly across representative cases?</h3>
+                <div class="request-variants"><p>“My package has not arrived.”</p><p>“Tracking has not changed for a week.”</p><p>“Can I get a refund for this delay?”</p></div>
+                <ul><li>Select the delivery capability</li><li>Use the correct shipment and policy result</li><li>Avoid an unsupported refund</li><li>Explain the supported resolution</li></ul>
+                <p>Many cases, layered checks, success rates, and failure categories.</p>
+              </section>
+            </div>
+            <p class="testing-eval-note">Software testing remains part of evaluation. It covers the layers where the expected answer is exact.</p>
+          </div>
+        </section>
+
+        <section class="slide" data-title="A helpful answer can still be wrong">
+          <div class="slide__content convincing-answer-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">17</p><h2>A helpful answer can still be wrong</h2><p>The final response may sound credible even when it contradicts the system’s evidence.</p></header>
+            <div class="convincing-answer-body">
+              <section class="answer-example">
+                <span>Customer request</span><blockquote>“My order has not arrived. What can you do?”</blockquote>
+                <span>Agent response</span><blockquote>“Your shipment has been delayed by a carrier disruption. I have confirmed that you are eligible for a refund.”</blockquote>
+              </section>
+              <section class="answer-evidence">
+                <span>Tool result</span>
+                <pre>{
+  "delay_days": 6,
+  "active_incident": true,
+  "refund_eligible": false,
+  "replacement_eligible": true,
+  "recommended_action": "offer_replacement"
+}</pre>
+                <p><strong>Conflict:</strong> The response promises a refund that the eligibility result did not allow.</p>
+              </section>
+            </div>
+            <p class="convincing-answer-note">A final-answer score may reward tone and helpfulness while missing the unsupported action.</p>
+          </div>
+        </section>
+
+        <section class="slide" data-title="Five tests inside one delivery run">
           <div class="slide__content eval-layout">
-            <header class="slide-heading slide-heading--compact"><p class="section-number">14</p><h2>Evaluate the system at the same seams where it runs</h2><p>A convincing final answer can hide an earlier failure.</p></header>
-            <ol class="eval-seams">
-              <li><span>1</span><strong>Routing</strong><p>Did the agent select the correct domain tool?</p></li><li><span>2</span><strong>Evidence</strong><p>Did the tool retrieve the correct records?</p></li><li><span>3</span><strong>Rules</strong><p>Did the code apply policy to the right inputs?</p></li><li><span>4</span><strong>Model findings</strong><p>Did interpretation stay within the evidence?</p></li><li><span>5</span><strong>Final response</strong><p>Can every claim be traced to a supported result?</p></li>
+            <header class="slide-heading slide-heading--compact"><p class="section-number">18</p><h2>One delivery run creates five tests</h2><p>Test the system at the same seams where it executes.</p></header>
+            <ol class="eval-seams eval-seams--concrete">
+              <li><span>1</span><strong>Routing</strong><p>Did the model select <code>investigate_delivery_issue</code>?</p></li>
+              <li><span>2</span><strong>Evidence</strong><p>Did the capability retrieve <code>order_42</code> and <code>shipment-102</code>?</p></li>
+              <li><span>3</span><strong>Rules</strong><p>Did it calculate six delayed days and reject refund eligibility?</p></li>
+              <li><span>4</span><strong>Inner model</strong><p>Did the carrier-note category match the source and allowed schema?</p></li>
+              <li><span>5</span><strong>Final response</strong><p>Did it offer a replacement without inventing a refund?</p></li>
             </ol>
-            <p class="eval-note">Use deterministic tests for known answers. Reserve model-based judging for tasks that require interpretation.</p>
+            <p class="eval-note">The final response matters. The layer checks explain why that response succeeded or failed.</p>
+          </div>
+        </section>
+
+        <section class="slide" data-title="One golden delivery case">
+          <div class="slide__content golden-case-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">19</p><h2>One golden case defines correct behavior</h2><p>A labeled case makes the expected path and outcome explicit before release.</p></header>
+            <div class="golden-case-body">
+              <section class="golden-input">
+                <span>Input and fixed context</span><blockquote>“My order has not arrived. What can you do?”</blockquote>
+                <dl><div><dt>Customer</dt><dd>cust_1</dd></div><div><dt>Order</dt><dd>order_42</dd></div><div><dt>Shipment</dt><dd>shipment-102</dd></div><div><dt>Carrier incident</dt><dd>incident-74</dd></div></dl>
+              </section>
+              <section class="golden-expected">
+                <span>Expected execution</span>
+                <dl><div><dt>Selected capability</dt><dd>investigate_delivery_issue</dd></div><div><dt>Delay</dt><dd>6 days</dd></div><div><dt>Refund eligible</dt><dd>false</dd></div><div><dt>Replacement eligible</dt><dd>true</dd></div><div><dt>Recommended action</dt><dd>offer_replacement</dd></div><div><dt>Evidence</dt><dd>shipment-102, incident-74, policy-5.2</dd></div></dl>
+              </section>
+            </div>
+            <div class="golden-response-contract"><strong>Expected response behavior</strong><span>Explain the disruption, offer a replacement, avoid a refund promise, and use only returned evidence.</span></div>
+          </div>
+        </section>
+
+        <section class="slide" data-title="Match the evaluator to the decision">
+          <div class="slide__content evaluator-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">20</p><h2>Match the evaluator to the decision</h2><p>The cheapest reliable evaluator depends on whether the answer is exact, semantic, or consequential.</p></header>
+            <div class="evaluator-types">
+              <section><span>Code</span><h3>Known answers</h3><ul><li>Tool name and arguments</li><li>Shipment and evidence IDs</li><li>Calculations and policy outcomes</li><li>Schema and allowed values</li></ul><p>Run on every relevant case.</p></section>
+              <section><span>Bounded LLM judge</span><h3>Semantic questions</h3><ul><li>Summary preserves source meaning</li><li>Explanation contains no distortion</li><li>Important qualifications remain</li></ul><p>Use a narrow rubric and validate the judge.</p></section>
+              <section><span>Human review</span><h3>Costly or uncertain cases</h3><ul><li>Disputed refunds</li><li>Policy exceptions</li><li>Irreversible actions</li><li>Evaluator disagreement</li></ul><p>Focus review where mistakes have the highest cost.</p></section>
+            </div>
+            <p class="evaluator-note">Model judges add cost and uncertainty. Keep exact checks in code.</p>
+          </div>
+        </section>
+
+        <section class="slide" data-title="The same bad answer has different causes">
+          <div class="slide__content failure-diagnosis-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">21</p><h2>The same bad answer can have different causes</h2><p>Layer scores tell the team where to investigate instead of treating every failure as a prompt problem.</p></header>
+            <div class="failure-diagnosis">
+              <section><span>Routing failure</span><h3>Wrong capability</h3><p>The model selected generic search instead of the delivery investigation.</p><strong>Investigate</strong><p>Tool boundaries, descriptions, and labeled routing cases</p></section>
+              <section><span>Evidence failure</span><h3>Stale shipment</h3><p>The correct capability ran but retrieved an old or incomplete shipment record.</p><strong>Investigate</strong><p>Adapter, lookup parameters, freshness, and dependency health</p></section>
+              <section><span>Grounding failure</span><h3>Unsupported refund</h3><p>The tool returned the correct result but the response contradicted it.</p><strong>Investigate</strong><p>Claim validation, response constraints, and model behavior</p></section>
+            </div>
+            <p class="failure-diagnosis-note">An overall score gives a grade. Layered evaluation gives a diagnosis.</p>
           </div>
         </section>
 
         <section class="slide" data-title="Tracing the execution path">
           <div class="slide__content trace-layout">
-            <header class="slide-heading slide-heading--compact"><p class="section-number">15</p><h2>The trace turns a result into an explainable execution</h2><p>Each run should preserve the decisions, inputs, outputs, and evidence used along the way.</p></header>
+            <header class="slide-heading slide-heading--compact"><p class="section-number">22</p><h2>The trace turns a result into an explainable execution</h2><p>Each run should preserve the decisions, inputs, outputs, and evidence used along the way.</p></header>
             <div class="execution-trace">
-              <section><span>Request</span><p>What did the user ask?</p></section><section><span>Selected tool</span><p>Which capability did the agent choose?</p></section><section><span>Evidence</span><p>Which records and sources were returned?</p></section><section><span>Rules and findings</span><p>Which calculations and interpretations shaped the recommendation?</p></section><section><span>Action and response</span><p>What did the system propose, execute, and explain?</p></section>
+              <section><span>Request and routing</span><p>User goal, selected capability, and routing decision</p></section><section><span>Inputs and evidence</span><p>Records retrieved, source status, and evidence identifiers</p></section><section><span>Inner model call</span><p>Model and prompt version, tokens, latency, retries, and typed findings</p></section><section><span>Rules and fallback</span><p>Deterministic results, schema validation, missing sources, and fallback path</p></section><section><span>Action and outcome</span><p>Recommendation, approval, execution result, and final explanation</p></section>
             </div>
-            <div class="trace-tests"><span>Schema validation</span><span>Golden datasets</span><span>Grounding checks</span><span>Human review for costly errors</span></div>
+            <div class="trace-tests"><span>Prompt and model version</span><span>Tokens, latency, and retries</span><span>Schema and evidence validation</span><span>Fallback and final outcome</span></div>
           </div>
         </section>
 
-        <section class="slide" data-title="Production design checklist">
-          <div class="slide__content checklist-layout">
-            <header class="slide-heading slide-heading--compact"><p class="section-number">16</p><h2>A production agent needs explicit design decisions</h2><p>The model cannot compensate for unclear ownership across the surrounding system.</p></header>
-            <div class="production-checklist">
-              <section><strong>Goal</strong><p>Define success and the stopping condition.</p></section><section><strong>Tool surface</strong><p>Expose domain capabilities with distinct responsibilities.</p></section><section><strong>Reasoning boundary</strong><p>Keep calculations, validation, and policy enforcement in software.</p></section><section><strong>Action authority</strong><p>Specify which actions require approval.</p></section><section><strong>Evidence contract</strong><p>Return typed facts, model findings, and missing sources separately.</p></section><section><strong>Evaluation</strong><p>Test routing, evidence, rules, model findings, and final claims.</p></section>
+        <section class="slide" data-title="Offline evaluation and production monitoring">
+          <div class="slide__content offline-production-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">23</p><h2>Offline evaluation and production monitoring</h2><p>The two environments answer different questions and use different evidence.</p></header>
+            <div class="offline-production-compare">
+              <section><span>Before deployment</span><h3>Is the system correct on labeled cases?</h3><ul><li>Expected tool, evidence, rules, and allowed claims</li><li>Release gates for every layer and the complete task</li><li>Run after model, prompt, tool, policy, or adapter changes</li><li>Segment by intent, carrier, language, and edge case</li></ul></section>
+              <section><span>In production</span><h3>Where may the live system be degrading?</h3><ul><li>Dependency and schema failures</li><li>Missing, stale, or incomplete evidence</li><li>Policy invariant violations</li><li>Latency, cost, fallback, and escalation</li><li>Sampled human or model review for correctness</li></ul></section>
             </div>
+            <p class="offline-production-note">Production traces rarely contain ground truth. Report the reviewed sample size beside any estimated quality score.</p>
+          </div>
+        </section>
+
+        <section class="slide" data-title="A dashboard should identify the broken layer">
+          <div class="slide__content dashboard-diagnosis-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">24</p><h2>A dashboard should identify the broken layer</h2><p>Illustrative production signals show why a layer breakdown is more useful than one response-quality score.</p></header>
+            <div class="dashboard-diagnosis-body">
+              <div class="health-table" role="table" aria-label="Illustrative production health changes">
+                <div class="health-table__head" role="row"><span>Signal</span><span>Tuesday</span><span>Wednesday</span></div>
+                <div role="row"><span>Shipment adapter failures</span><strong>0.4%</strong><strong class="health-alert">18.6%</strong></div>
+                <div role="row"><span>Incomplete evidence</span><strong>1.9%</strong><strong class="health-alert">22.4%</strong></div>
+                <div role="row"><span>Human escalation</span><strong>3.1%</strong><strong class="health-alert">11.2%</strong></div>
+                <div role="row"><span>Grounded responses, sampled</span><strong>96.1%</strong><strong class="health-warn">88.2%</strong></div>
+                <div role="row"><span>Policy invariant violations</span><strong>0.1%</strong><strong>0.1%</strong></div>
+              </div>
+              <section class="dashboard-diagnosis">
+                <span>Diagnosis</span><h3>The failure begins at the shipment adapter</h3>
+                <ol><li>Adapter failures rise first.</li><li>Incomplete evidence and escalations follow.</li><li>Policy violations remain stable.</li><li>Groundedness falls as the evidence degrades.</li></ol>
+                <p>Investigate the adapter before changing the prompt or policy rules.</p>
+              </section>
+            </div>
+            <p class="dashboard-source">Illustrative data adapted from “How Do You Evaluate an Agent That Calls Tools That Call Other Tools?”</p>
+          </div>
+        </section>
+
+        <section class="slide" data-title="Evaluation operating model">
+          <div class="slide__content evaluation-model-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">25</p><h2>Evaluation operating model</h2><p>Evaluation becomes useful when it runs before release and learns from production failures.</p></header>
+            <ol class="evaluation-model">
+              <li><span>1</span><strong>Build the dataset</strong><p>Label common paths and the edge cases that matter.</p></li>
+              <li><span>2</span><strong>Define expected behavior</strong><p>Specify the tool, evidence, rules, and allowed claims.</p></li>
+              <li><span>3</span><strong>Automate exact checks</strong><p>Use code for deterministic facts and invariants.</p></li>
+              <li><span>4</span><strong>Judge semantic work</strong><p>Use narrow rubrics for summaries and explanations.</p></li>
+              <li><span>5</span><strong>Capture the trace</strong><p>Preserve inputs, decisions, evidence, and outcomes.</p></li>
+              <li><span>6</span><strong>Gate the release</strong><p>Set thresholds for each layer and the full task.</p></li>
+              <li><span>7</span><strong>Monitor production</strong><p>Track health signals and review a labeled sample.</p></li>
+              <li><span>8</span><strong>Learn from failures</strong><p>Add discovered cases back into the evaluation set.</p></li>
+            </ol>
+            <p class="evaluation-model-note">The final-answer score shows whether the user received a useful result. The layer scores explain why that result changed.</p>
           </div>
         </section>
 
         <section class="slide article-links-slide" data-title="Articles and references">
           <div class="slide__content article-links-layout">
-            <header class="slide-heading slide-heading--compact"><p class="section-number">17</p><h2>Articles and references</h2><p>The talk develops the argument across three related articles.</p></header>
+            <header class="slide-heading slide-heading--compact"><p class="section-number">18</p><h2>Articles and references</h2><p>The talk develops the argument across three related articles.</p></header>
             <ol class="article-links">
               <li><span>Part 1</span><a href="https://hackernoon.com/your-ai-agent-should-not-be-talking-to-all-mcp-tools">Your AI Agent Should Not Be Talking to All MCP Tools</a><p>Tool visibility and domain abstraction</p></li>
               <li><span>Part 2</span><a href="https://hackernoon.com/designing-reasoning-boundaries-in-agentic-systems">Designing Reasoning Boundaries in Agentic Systems</a><p>Software, model reasoning, and human approval</p></li>
@@ -489,10 +659,29 @@ Explain the result clearly.</code></pre>
             <p class="closing-result">The goal is the right autonomy, at the right layer, with enough evidence to trust the outcome.</p>
           </div>
         </section>
+
+        <section class="slide" data-title="About the speakers">
+          <div class="slide__content speakers-layout">
+            <header class="slide-heading slide-heading--compact"><p class="section-number">38</p><h2>About the speakers</h2><p>Product and engineering perspectives on building agentic systems.</p></header>
+            <div class="speaker-profiles">
+              <section>
+                <span>Speaker 1</span><h3>Akhilesh Keshap</h3><p class="speaker-role">Senior Product Manager at eBay</p>
+                <ul><li>Product leader working on AI and agentic systems</li><li>Software engineering background with more than a decade across technology and product</li><li>Writes about tool abstraction, reasoning boundaries, and agent evaluation</li></ul>
+                <a href="https://www.linkedin.com/in/akhileshkeshap/" target="_blank" rel="noopener">linkedin.com/in/akhileshkeshap</a>
+              </section>
+              <section>
+                <span>Speaker 2</span><h3>Pragya Keshap</h3><p class="speaker-role">Software engineer and cloud/AI practitioner</p>
+                <ul><li>Engineering experience across backend systems, Java, APIs, and enterprise architecture</li><li>Explores practical approaches for building and scaling AI agents</li><li>Writes about cloud architecture, Docker, and production AI systems</li></ul>
+                <a href="https://www.linkedin.com/in/pragyakeshap/" target="_blank" rel="noopener">linkedin.com/in/pragyakeshap</a>
+              </section>
+            </div>
+            <p class="speakers-note">We approach agentic systems from both sides of delivery: defining the product behavior and engineering the system that supports it.</p>
+          </div>
+        </section>
       </div>
 
       <nav class="deck-controls" aria-label="Slide controls">
-        <button id="previous" type="button" aria-label="Previous slide">←</button><span><b id="current-slide">1</b> / <span id="total-slides">30</span></span><button id="next" type="button" aria-label="Next slide">→</button><button id="help-button" type="button" aria-label="Keyboard shortcuts" aria-expanded="false">?</button>
+        <button id="previous" type="button" aria-label="Previous slide">←</button><span><b id="current-slide">1</b> / <span id="total-slides">40</span></span><button id="next" type="button" aria-label="Next slide">→</button><button id="help-button" type="button" aria-label="Keyboard shortcuts" aria-expanded="false">?</button>
       </nav>
       <div class="progress" aria-hidden="true"><span id="progress-fill"></span></div>
       <aside id="help-panel" class="help-panel" hidden><p><kbd>←</kbd> <kbd>→</kbd> move between slides</p><p><kbd>Home</kbd> <kbd>End</kbd> jump to the first or last slide</p><p><kbd>F</kbd> enters or exits full screen</p></aside>

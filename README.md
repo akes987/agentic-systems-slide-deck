@@ -12,7 +12,7 @@ python3 -m http.server 8080
 
 Then visit `http://localhost:8080`.
 
-The first seven content slides are designed for approximately 15 minutes. They introduce technical evolution, organizational adoption, the autonomy spectrum, the seven system components, a missing-delivery case, and the growing decision surface. The next thirteen slides use the delivery case and an illustrative loan-eligibility example to explain tool visibility, repeated orchestration, domain capabilities, structured evidence, prompt-owned versus software-owned decision logic, implementation practices, and related industry patterns.
+The 40-slide talk opens with the evolution, adoption, anatomy, and autonomy of agentic systems. A missing-delivery case and an illustrative loan-eligibility example then explain tool visibility, repeated orchestration, domain capabilities, and reasoning boundaries. The final chapter shows how software testing and agent evaluation work together through golden cases, layered checks, execution traces, release evaluation, and production monitoring. The deck closes with speaker profiles and LinkedIn links for Akhilesh Keshap and Pragya Keshap.
 
 ## Controls
 
